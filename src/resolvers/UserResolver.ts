@@ -20,9 +20,19 @@ const generateToken = (user: any) => {
 
 @Resolver()
 export class UserResolver {
-  @Query(() => String)
-  async getUSers() {
-    return "hello";
+  @Query(() => User, { name: "user" })
+  async getUSer(@Ctx() { req, prisma }: Context) {
+    try {
+      if (!req.user) {
+        throw new GraphQLError("User not allowed");
+      }
+      const user = await prisma.user.findFirst({
+        where: { email: req.user.email },
+      });
+      return user;
+    } catch (err) {
+      throw err;
+    }
   }
 
   // login user

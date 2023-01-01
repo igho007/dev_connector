@@ -16,6 +16,7 @@ const type_graphql_1 = require("type-graphql");
 const HelloResolver_1 = require("./resolvers/HelloResolver");
 const client_1 = require("@prisma/client");
 const UserResolver_1 = require("./resolvers/UserResolver");
+const jsonwebtoken_1 = require("jsonwebtoken");
 const prisma = new client_1.PrismaClient();
 const main = async () => {
     const app = (0, express_1.default)();
@@ -27,13 +28,26 @@ const main = async () => {
         }),
         plugins: [(0, drainHttpServer_1.ApolloServerPluginDrainHttpServer)({ httpServer })],
     });
+    app.use((req, _, next) => {
+        try {
+            if (req.headers && req.headers.authorization) {
+                const token = req.headers.authorization.split("bearer ")[1];
+                if (token) {
+                    const decodedToken = (0, jsonwebtoken_1.verify)(token, "ighodalo");
+                    req.user = decodedToken;
+                }
+            }
+        }
+        catch (_a) { }
+        next();
+    });
     await server.start();
     app.use("/graphql", (0, cors_1.default)(), (0, body_parser_1.json)(), (0, express4_1.expressMiddleware)(server, {
         context: async ({ req, res }) => ({
             token: req.headers.token,
+            req,
             res,
             prisma,
-            user: req.headers.user,
         }),
     }));
     await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));

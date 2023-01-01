@@ -28,8 +28,19 @@ const generateToken = (user) => {
     return (0, jsonwebtoken_1.sign)({ name: user.name, email: user.email, userId: user.userId }, "ighodalo", { expiresIn: "2h" });
 };
 let UserResolver = class UserResolver {
-    async getUSers() {
-        return "hello";
+    async getUSer({ req, prisma }) {
+        try {
+            if (!req.user) {
+                throw new graphql_1.GraphQLError("User not allowed");
+            }
+            const user = await prisma.user.findFirst({
+                where: { email: req.user.email },
+            });
+            return user;
+        }
+        catch (err) {
+            throw err;
+        }
     }
     async login({ email, password }, { prisma }) {
         const { errors, valid } = (0, validateError_1.validateLogin)(email, password);
@@ -85,11 +96,12 @@ let UserResolver = class UserResolver {
     }
 };
 __decorate([
-    (0, type_graphql_1.Query)(() => String),
+    (0, type_graphql_1.Query)(() => userObject_1.User, { name: "user" }),
+    __param(0, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [types_1.Context]),
     __metadata("design:returntype", Promise)
-], UserResolver.prototype, "getUSers", null);
+], UserResolver.prototype, "getUSer", null);
 __decorate([
     (0, type_graphql_1.Query)(() => userObject_1.User),
     __param(0, (0, type_graphql_1.Arg)("login")),
