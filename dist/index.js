@@ -14,21 +14,32 @@ const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const type_graphql_1 = require("type-graphql");
 const HelloResolver_1 = require("./resolvers/HelloResolver");
+const client_1 = require("@prisma/client");
+const UserResolver_1 = require("./resolvers/UserResolver");
+const prisma = new client_1.PrismaClient();
 const main = async () => {
     const app = (0, express_1.default)();
     const httpServer = http_1.default.createServer(app);
     const server = new server_1.ApolloServer({
         schema: await (0, type_graphql_1.buildSchema)({
-            resolvers: [HelloResolver_1.HelloResolver],
+            resolvers: [HelloResolver_1.HelloResolver, UserResolver_1.UserResolver],
+            validate: false,
         }),
         plugins: [(0, drainHttpServer_1.ApolloServerPluginDrainHttpServer)({ httpServer })],
     });
     await server.start();
     app.use("/graphql", (0, cors_1.default)(), (0, body_parser_1.json)(), (0, express4_1.expressMiddleware)(server, {
-        context: async ({ req }) => ({ token: req.headers.token }),
+        context: async ({ req, res }) => ({
+            token: req.headers.token,
+            res,
+            prisma,
+            user: req.headers.user,
+        }),
     }));
     await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
     console.log(`🚀 Server ready at http://localhost:4000/graphql`.blue.bold);
 };
-main().catch((e) => console.log(`${e}`.red));
+main()
+    .catch((e) => console.log(`${e}`.red))
+    .finally(async () => await prisma.$disconnect());
 //# sourceMappingURL=index.js.map

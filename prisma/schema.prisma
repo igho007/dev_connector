@@ -15,6 +15,7 @@ model User {
   name      String
   email     String @unique
   avatar    String
+  userId    String
   password  String
   createdAt String
 }

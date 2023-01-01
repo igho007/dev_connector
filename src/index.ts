@@ -10,6 +10,7 @@ import http from "http";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/HelloResolver";
 import { PrismaClient } from "@prisma/client";
+import { UserResolver } from "./resolvers/UserResolver";
 
 interface User {
   name: string;
@@ -29,7 +30,8 @@ const main = async () => {
   const httpServer = http.createServer(app);
   const server = new ApolloServer<MyContext>({
     schema: await buildSchema({
-      resolvers: [HelloResolver],
+      resolvers: [HelloResolver, UserResolver],
+      validate: false,
     }),
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
