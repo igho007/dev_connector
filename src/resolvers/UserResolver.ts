@@ -1,11 +1,12 @@
+import { Login } from "./../dto/login";
 import { Context } from "./../types";
-import { validateRegister } from "./../utils/validateError";
+import { validateRegister, validateLogin } from "./../utils/validateError";
 import { Register } from "./../dto/register";
 import { User } from "./../object/userObject";
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { GraphQLError } from "graphql";
 import { v4 } from "uuid";
-import { hash } from "bcrypt";
+import { compare, hash } from "bcrypt";
 import { url } from "gravatar";
 import { sign } from "jsonwebtoken";
 
@@ -22,6 +23,41 @@ export class UserResolver {
   @Query(() => String)
   async getUSers() {
     return "hello";
+  }
+
+  // login user
+  @Query(() => User)
+  async login(
+    @Arg("login") { email, password }: Login,
+    @Ctx() { prisma }: Context
+  ) {
+    const { errors, valid } = validateLogin(email, password);
+    if (!valid) {
+      throw new GraphQLError("Bad Input", { extensions: { errors } });
+    }
+
+    try {
+      const user = await prisma.user.findFirst({ where: { email } });
+      if (!user) {
+        errors.message = "wrong email/password";
+        throw new GraphQLError("Bad Input", { extensions: { errors } });
+      }
+
+      const isMatch = await compare(password, user.password);
+      if (!isMatch) {
+        errors.message = "wrong email/password";
+        throw new GraphQLError("Bad Input", { extensions: { errors } });
+      }
+
+      const token = generateToken(user);
+
+      return {
+        ...user,
+        token,
+      };
+    } catch (err) {
+      throw err;
+    }
   }
 
   // create user

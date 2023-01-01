@@ -15,5 +15,8 @@ export class User {
   avatar: string;
 
   @Field()
+  token: string;
+
+  @Field()
   createdAt: string;
 }

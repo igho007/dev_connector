@@ -9,36 +9,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
+exports.Login = void 0;
 const type_graphql_1 = require("type-graphql");
-let User = class User {
+let Login = class Login {
 };
 __decorate([
     (0, type_graphql_1.Field)(),
     __metadata("design:type", String)
-], User.prototype, "name", void 0);
+], Login.prototype, "email", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     __metadata("design:type", String)
-], User.prototype, "email", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], User.prototype, "userId", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], User.prototype, "avatar", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], User.prototype, "token", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], User.prototype, "createdAt", void 0);
-User = __decorate([
-    (0, type_graphql_1.ObjectType)()
-], User);
-exports.User = User;
-//# sourceMappingURL=userObject.js.map
+], Login.prototype, "password", void 0);
+Login = __decorate([
+    (0, type_graphql_1.InputType)()
+], Login);
+exports.Login = Login;
+//# sourceMappingURL=login.js.map

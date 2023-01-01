@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
+const login_1 = require("./../dto/login");
 const types_1 = require("./../types");
 const validateError_1 = require("./../utils/validateError");
 const register_1 = require("./../dto/register");
@@ -29,6 +30,29 @@ const generateToken = (user) => {
 let UserResolver = class UserResolver {
     async getUSers() {
         return "hello";
+    }
+    async login({ email, password }, { prisma }) {
+        const { errors, valid } = (0, validateError_1.validateLogin)(email, password);
+        if (!valid) {
+            throw new graphql_1.GraphQLError("Bad Input", { extensions: { errors } });
+        }
+        try {
+            const user = await prisma.user.findFirst({ where: { email } });
+            if (!user) {
+                errors.message = "wrong email/password";
+                throw new graphql_1.GraphQLError("Bad Input", { extensions: { errors } });
+            }
+            const isMatch = await (0, bcrypt_1.compare)(password, user.password);
+            if (!isMatch) {
+                errors.message = "wrong email/password";
+                throw new graphql_1.GraphQLError("Bad Input", { extensions: { errors } });
+            }
+            const token = generateToken(user);
+            return Object.assign(Object.assign({}, user), { token });
+        }
+        catch (err) {
+            throw err;
+        }
     }
     async register({ name, email, password, confirmPassword }, { prisma }) {
         const { errors, valid } = (0, validateError_1.validateRegister)(name, email, password, confirmPassword);
@@ -66,6 +90,15 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "getUSers", null);
+__decorate([
+    (0, type_graphql_1.Query)(() => userObject_1.User),
+    __param(0, (0, type_graphql_1.Arg)("login")),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [login_1.Login,
+        types_1.Context]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "login", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => userObject_1.User),
     __param(0, (0, type_graphql_1.Arg)("register")),

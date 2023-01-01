@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateRegister = void 0;
+exports.validateLogin = exports.validateRegister = void 0;
 const validateRegister = (name, email, password, confirmPassword) => {
     const errors = {};
     if (name === "")
@@ -24,4 +24,23 @@ const validateRegister = (name, email, password, confirmPassword) => {
     };
 };
 exports.validateRegister = validateRegister;
+const validateLogin = (email, password) => {
+    const errors = {};
+    if (email === "") {
+        errors.email = "Enter Email";
+    }
+    else {
+        const regEx = /^[^\s@]+@[^\s@]+\.[^\s@]/;
+        if (!email.match(regEx)) {
+            errors.email = "Enter a valid email";
+        }
+    }
+    if (password.length < 5)
+        errors.password = "password must be greater than 5";
+    return {
+        errors,
+        valid: Object.keys(errors).length < 1,
+    };
+};
+exports.validateLogin = validateLogin;
 //# sourceMappingURL=validateError.js.map
