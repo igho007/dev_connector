@@ -9,10 +9,20 @@ import express from "express";
 import http from "http";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/HelloResolver";
+import { PrismaClient } from "@prisma/client";
+
+interface User {
+  name: string;
+  email: string;
+  userId: string;
+}
 
 interface MyContext {
   token?: String;
+  user?: User;
 }
+
+const prisma = new PrismaClient();
 
 const main = async () => {
   const app = express();
@@ -31,7 +41,12 @@ const main = async () => {
     cors<cors.CorsRequest>(),
     json(),
     expressMiddleware(server, {
-      context: async ({ req }) => ({ token: req.headers.token }),
+      context: async ({ req, res }) => ({
+        token: req.headers.token,
+        res,
+        prisma,
+        user: req.headers.user,
+      }),
     })
   );
 
@@ -41,4 +56,6 @@ const main = async () => {
   console.log(`🚀 Server ready at http://localhost:4000/graphql`.blue.bold);
 };
 
-main().catch((e) => console.log(`${e}`.red));
+main()
+  .catch((e) => console.log(`${e}`.red))
+  .finally(async () => await prisma.$disconnect());
