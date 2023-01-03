@@ -8,9 +8,9 @@ import cors from "cors";
 import express, { Request } from "express";
 import http from "http";
 import { buildSchema } from "type-graphql";
-import { HelloResolver } from "./resolvers/HelloResolver";
 import { PrismaClient } from "@prisma/client";
 import { UserResolver } from "./resolvers/UserResolver";
+import { ProfileResolver } from "./resolvers/ProfileResolver";
 import { verify } from "jsonwebtoken";
 
 declare global {
@@ -32,7 +32,7 @@ const main = async () => {
   const httpServer = http.createServer(app);
   const server = new ApolloServer<MyContext>({
     schema: await buildSchema({
-      resolvers: [HelloResolver, UserResolver],
+      resolvers: [UserResolver, ProfileResolver],
       validate: false,
     }),
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
@@ -44,6 +44,7 @@ const main = async () => {
         const token = req.headers.authorization.split("bearer ")[1];
         if (token) {
           const decodedToken = verify(token, "ighodalo");
+
           req.user = decodedToken;
         }
       }

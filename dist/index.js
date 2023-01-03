@@ -13,9 +13,9 @@ const cors_1 = __importDefault(require("cors"));
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const type_graphql_1 = require("type-graphql");
-const HelloResolver_1 = require("./resolvers/HelloResolver");
 const client_1 = require("@prisma/client");
 const UserResolver_1 = require("./resolvers/UserResolver");
+const ProfileResolver_1 = require("./resolvers/ProfileResolver");
 const jsonwebtoken_1 = require("jsonwebtoken");
 const prisma = new client_1.PrismaClient();
 const main = async () => {
@@ -23,7 +23,7 @@ const main = async () => {
     const httpServer = http_1.default.createServer(app);
     const server = new server_1.ApolloServer({
         schema: await (0, type_graphql_1.buildSchema)({
-            resolvers: [HelloResolver_1.HelloResolver, UserResolver_1.UserResolver],
+            resolvers: [UserResolver_1.UserResolver, ProfileResolver_1.ProfileResolver],
             validate: false,
         }),
         plugins: [(0, drainHttpServer_1.ApolloServerPluginDrainHttpServer)({ httpServer })],

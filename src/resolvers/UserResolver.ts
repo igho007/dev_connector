@@ -20,8 +20,8 @@ const generateToken = (user: any) => {
 
 @Resolver()
 export class UserResolver {
-  @Query(() => User, { name: "user" })
-  async getUSer(@Ctx() { req, prisma }: Context) {
+  @Query(() => User, { name: "user", nullable: false })
+  async getUser(@Ctx() { req, prisma }: Context) {
     try {
       if (!req.user) {
         throw new GraphQLError("User not allowed");
@@ -29,6 +29,7 @@ export class UserResolver {
       const user = await prisma.user.findFirst({
         where: { email: req.user.email },
       });
+
       return user;
     } catch (err) {
       throw err;
@@ -75,7 +76,7 @@ export class UserResolver {
   async register(
     @Arg("register") { name, email, password, confirmPassword }: Register,
     @Ctx() { prisma }: Context
-  ) {
+  ): Promise<User | null> {
     const { errors, valid } = validateRegister(
       name,
       email,
@@ -88,12 +89,13 @@ export class UserResolver {
 
     // check if the user already exists
     try {
-      let userByEmail = await prisma.user.findUnique({ where: { email } });
+      const userByEmail = await prisma.user.findFirst({ where: { email } });
       if (userByEmail) {
         errors.email = "Email is taken";
         throw new GraphQLError("Bad Input", { extensions: { errors } });
       }
       const avatar = url(email, { s: "200", r: "pg", d: "mm" }, true);
+
       const user = await prisma.user.create({
         data: {
           name,
@@ -102,6 +104,9 @@ export class UserResolver {
           createdAt: new Date().toDateString(),
           avatar,
           userId: v4(),
+        },
+        include: {
+          profile: true,
         },
       });
 

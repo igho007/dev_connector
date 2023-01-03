@@ -1,22 +1,18 @@
 import { Field, ObjectType } from "type-graphql";
-
 @ObjectType()
-export class User {
+export class Experience {
   @Field()
-  name: string;
-
+  company: string;
   @Field()
-  email: string;
-
+  location: string;
   @Field()
-  userId: string;
-
+  title: string;
   @Field()
-  avatar: string;
-
+  from: string;
   @Field()
-  token?: string;
-
+  to: string;
+  @Field()
+  current: boolean;
   @Field()
   createdAt: string;
 }

@@ -11,11 +11,66 @@ datasource db {
 }
 
 model User {
-  id        Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
-  email     String @unique
+  email     String
   avatar    String
   userId    String
   password  String
   createdAt String
+  profile   Profile?
+}
+
+model Profile {
+  id             Int          @id @default(autoincrement())
+  company        String?
+  website        String?
+  location       String?
+  email          String?
+  skills         String[]
+  status         String
+  bio            String?
+  githubusername String?
+  user           User?        @relation(fields: [userId], references: [id])
+  userId         Int          @unique
+  createdAt      String
+  experience     Experience[]
+  education      Education[]
+  socials        Social?
+}
+
+model Experience {
+  id        Int     @id @default(autoincrement())
+  title     String
+  company   String
+  location  String
+  from      String
+  to        String
+  current   Boolean
+  createdAt String
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int     @unique
+}
+
+model Education {
+  id            Int     @id @default(autoincrement())
+  school        String
+  degree        String
+  fieldsofstudy String
+  from          String
+  to            String
+  createdAt     String
+  current       Boolean
+  profile       Profile @relation(fields: [profileId], references: [id])
+  profileId     Int     @unique
+}
+
+model Social {
+  id        Int     @id @default(autoincrement())
+  youtube   String
+  facebook  String
+  twitter   String
+  linkedin  String
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int     @unique
 }

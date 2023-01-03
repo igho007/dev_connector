@@ -28,7 +28,7 @@ const generateToken = (user) => {
     return (0, jsonwebtoken_1.sign)({ name: user.name, email: user.email, userId: user.userId }, "ighodalo", { expiresIn: "2h" });
 };
 let UserResolver = class UserResolver {
-    async getUSer({ req, prisma }) {
+    async getUser({ req, prisma }) {
         try {
             if (!req.user) {
                 throw new graphql_1.GraphQLError("User not allowed");
@@ -71,7 +71,7 @@ let UserResolver = class UserResolver {
             throw new graphql_1.GraphQLError("Bad input", { extensions: { errors } });
         }
         try {
-            let userByEmail = await prisma.user.findUnique({ where: { email } });
+            const userByEmail = await prisma.user.findFirst({ where: { email } });
             if (userByEmail) {
                 errors.email = "Email is taken";
                 throw new graphql_1.GraphQLError("Bad Input", { extensions: { errors } });
@@ -86,6 +86,9 @@ let UserResolver = class UserResolver {
                     avatar,
                     userId: (0, uuid_1.v4)(),
                 },
+                include: {
+                    profile: true,
+                },
             });
             const token = generateToken(user);
             return Object.assign(Object.assign({}, user), { token });
@@ -96,12 +99,12 @@ let UserResolver = class UserResolver {
     }
 };
 __decorate([
-    (0, type_graphql_1.Query)(() => userObject_1.User, { name: "user" }),
+    (0, type_graphql_1.Query)(() => userObject_1.User, { name: "user", nullable: false }),
     __param(0, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [types_1.Context]),
     __metadata("design:returntype", Promise)
-], UserResolver.prototype, "getUSer", null);
+], UserResolver.prototype, "getUser", null);
 __decorate([
     (0, type_graphql_1.Query)(() => userObject_1.User),
     __param(0, (0, type_graphql_1.Arg)("login")),
